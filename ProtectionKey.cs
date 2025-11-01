@@ -5,9 +5,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 
-namespace ProtectionKeyDepartment
+namespace ZatcaProtection
 {
-    public static class StegoObfuscator
+    public static class StegoObfuscatorForKey
     {
         public const int DefaultCoverLength = 5000; // زودنا الطول لدعم بيانات أكبر
         public const int ChunkSize = 24;
@@ -124,25 +124,25 @@ namespace ProtectionKeyDepartment
         }
     }
 
-    public static class MultiLayerEncryptor
+    public static class MultiLayerEncryptorForKey
     {
         public static string EncryptTriple(string number1, string number2, string jsonData,
                                            string password1, string password2, string password3)
         {
             string plain = number1 + "|" + number2 + "|" + jsonData;
 
-            string step1 = SecureNumberEncryptor.EncryptText(plain, password1);
-            string step2 = SecureNumberEncryptor.EncryptText(step1, password2);
-            string step3 = SecureNumberEncryptor.EncryptText(step2, password3);
+            string step1 = SecureNumberEncryptorForKey.EncryptText(plain, password1);
+            string step2 = SecureNumberEncryptorForKey.EncryptText(step1, password2);
+            string step3 = SecureNumberEncryptorForKey.EncryptText(step2, password3);
             return step3;
         }
 
         public static (string, string, string) DecryptTriple(string encrypted,
                                                      string password1, string password2, string password3)
         {
-            string s2 = SecureNumberEncryptor.DecryptText(encrypted, password3);
-            string s1 = SecureNumberEncryptor.DecryptText(s2, password2);
-            string plain = SecureNumberEncryptor.DecryptText(s1, password1);
+            string s2 = SecureNumberEncryptorForKey.DecryptText(encrypted, password3);
+            string s1 = SecureNumberEncryptorForKey.DecryptText(s2, password2);
+            string plain = SecureNumberEncryptorForKey.DecryptText(s1, password1);
 
             string[] parts = plain.Split('|');
             if (parts.Length < 3) throw new FormatException("Invalid decrypted format.");
@@ -150,7 +150,7 @@ namespace ProtectionKeyDepartment
         }
     }
 
-    public static class SecureNumberEncryptor
+    public static class SecureNumberEncryptorForKey
     {
         private const int SaltSize = 16;
         private const int KeySize = 32;

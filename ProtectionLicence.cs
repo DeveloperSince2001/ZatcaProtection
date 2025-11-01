@@ -14,9 +14,9 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ProtectionLicenceDepartment
+namespace ZatcaProtection
 {
-    public static class StegoObfuscator
+    public static class StegoObfuscatorForLicence
     {
         public const int DefaultCoverLength = 2000; // طول سلسلة الغطاء ≥ 2000 لزيادة الأمان
         public const int ChunkSize = 24;
@@ -155,28 +155,39 @@ namespace ProtectionLicenceDepartment
     }
 
     // ===== التشفير ثلاثي الطبقات AES + إضافة التاريخ =====
-    public static class MultiLayerEncryptor
+    public static class MultiLayerEncryptorForLicence
     {
+        public static string EncryptTripleOld(string number1, string number2, DateTime date,
+                                           string password1, string password2, string password3)
+        {
+            string step1 = SecureNumberEncryptorForLicence.EncryptData(number1, number2, date, password1);
+            string step2 = SecureNumberEncryptorForLicence.EncryptData(step1, "", DateTime.MinValue, password2);
+            string step3 = SecureNumberEncryptorForLicence.EncryptData(step2, "", DateTime.MinValue, password3);
+            return step3;
+        }
         public static string EncryptTriple(string number1, string number2, DateTime date,
                                            string password1, string password2, string password3)
         {
-            string step1 = SecureNumberEncryptor.EncryptData(number1, number2, date, password1);
-            string step2 = SecureNumberEncryptor.EncryptData(step1, "", DateTime.MinValue, password2);
-            string step3 = SecureNumberEncryptor.EncryptData(step2, "", DateTime.MinValue, password3);
-            return step3;
+            string step1 = SecureNumberEncryptorForLicence.EncryptData(number1, number2, date, password1);
+            return step1;
         }
-
+        public static (string, string, DateTime) DecryptTripleOld(string encrypted,
+                                                     string password1, string password2, string password3)
+        {
+            var (s2, _, _) = SecureNumberEncryptorForLicence.DecryptData(encrypted, password3);
+            var (s1, _, _) = SecureNumberEncryptorForLicence.DecryptData(s2, password2);
+            var (n1, n2, date) = SecureNumberEncryptorForLicence.DecryptData(s1, password1);
+            return (n1, n2, date);
+        }
         public static (string, string, DateTime) DecryptTriple(string encrypted,
                                                      string password1, string password2, string password3)
         {
-            var (s2, _, _) = SecureNumberEncryptor.DecryptData(encrypted, password3);
-            var (s1, _, _) = SecureNumberEncryptor.DecryptData(s2, password2);
-            var (n1, n2, date) = SecureNumberEncryptor.DecryptData(s1, password1);
+            var (n1, n2, date) = SecureNumberEncryptorForLicence.DecryptData(encrypted, password1);
             return (n1, n2, date);
         }
     }
 
-    public static class SecureNumberEncryptor
+    public static class SecureNumberEncryptorForLicence
     {
         private const int SaltSize = 16;
         private const int KeySize = 32;

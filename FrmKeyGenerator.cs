@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using ProtectionKeyDepartment;
-using ProtectionLicenceDepartment;
+
 using System.Diagnostics;
 namespace ZatcaProtection
 {
@@ -80,12 +79,13 @@ namespace ZatcaProtection
                 }
 
                 // تشفير
-                string finalEncrypted = ProtectionKeyDepartment.MultiLayerEncryptor.EncryptTriple(number1, number2, jsonData, pass1, pass2, pass3);
+                string finalEncrypted = MultiLayerEncryptorForKey.EncryptTriple(number1, number2, jsonData, pass1, pass2, pass3);
 
                 // إخفاء
-                string stego = ProtectionKeyDepartment.StegoObfuscator.Hide(finalEncrypted, stegoKey, ProtectionKeyDepartment.StegoObfuscator.DefaultCoverLength);
+                string stego = StegoObfuscatorForKey.Hide(finalEncrypted, stegoKey, StegoObfuscatorForKey.DefaultCoverLength);
 
                 txtEncrypted.Text = stego;
+
                 _mProccess_Name = "Encrypt";
                 PrintDifferenceInSeconds();
 
@@ -109,10 +109,10 @@ namespace ZatcaProtection
                 string stegoKey = txtStegoKey.Text.Trim();
 
                 // استخراج النص الأصلي
-                string extracted = ProtectionKeyDepartment.StegoObfuscator.Extract(encryptedStego, stegoKey, ProtectionKeyDepartment.StegoObfuscator.DefaultCoverLength);
+                string extracted = StegoObfuscatorForKey.Extract(encryptedStego, stegoKey, StegoObfuscatorForKey.DefaultCoverLength);
 
                 // فك التشفير
-                var (n1, n2, recJson) = ProtectionKeyDepartment.MultiLayerEncryptor.DecryptTriple(extracted, pass1, pass2, pass3);
+                var (n1, n2, recJson) = MultiLayerEncryptorForKey.DecryptTriple(extracted, pass1, pass2, pass3);
 
                 txtNumber1Out.Text = n1;
                 txtNumber2Out.Text = n2;
@@ -158,14 +158,32 @@ namespace ZatcaProtection
                 string stegoKey = txtStegoKey.Text.Trim();
 
                 // استدعاء التشفير الجديد
-                string newEncrypted = ProtectionLicenceDepartment.MultiLayerEncryptor.EncryptTriple(n1, n2, date, pass1, pass2, pass3);
+                string newEncrypted = MultiLayerEncryptorForLicence.EncryptTriple(n1, n2, date, pass1, pass2, pass3);
 
                 // تخزين النتيجة
                 txtReEncrypted.Text = newEncrypted;
 
                 // إخفاء مع Stego
-                string stego = ProtectionLicenceDepartment.StegoObfuscator.Hide(newEncrypted, stegoKey, ProtectionLicenceDepartment.StegoObfuscator.DefaultCoverLength);
+                string stego = StegoObfuscatorForLicence.Hide(newEncrypted, stegoKey, StegoObfuscatorForLicence.DefaultCoverLength);
                 txtStegoReEncrypted.Text = stego;
+
+                try
+                {
+                    File.WriteAllText("License" + n2 + ".txt", stego);
+                    //_mClassToJsonStr = JsonConvert.SerializeObject(responsePost);
+                    //_mProtectionKey_File_Name = SettingsParams.PihFileTxtPath + "License" + inv.SupplierParty.partyIdentification.ID + ".txt";
+                    //using (var tw = new StreamWriter(_mProtectionKey_File_Name, true, Encoding.UTF8))
+                    //{
+                    //    tw.WriteLine(recJson);
+                    //    tw.Close();
+                    //}
+
+                }
+                catch (Exception ExErrorWrite)
+                {
+                    //File.AppendAllText(_mReturnResponsedir.Replace(_mVAT_REGISTERATION + "_" + _mISSUE_DATE.Replace("-", "") + "_", "") + "WriteFileErrorLog.txt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " | Error writing to file: ***\n" + _mGeneralFileName + "***\n###" + ExErrorWrite.ToString() + "###\n\n");
+
+                }
                 _mProccess_Name = "ReEncypt";
                 PrintDifferenceInSeconds();
 
@@ -190,10 +208,10 @@ namespace ZatcaProtection
                 string stegoEnc = txtStegoReEncrypted.Text.Trim();
 
                 // استخراج النص
-                string extracted = ProtectionLicenceDepartment.StegoObfuscator.Extract(stegoEnc, stegoKey, ProtectionLicenceDepartment.StegoObfuscator.DefaultCoverLength);
+                string extracted = StegoObfuscatorForLicence.Extract(stegoEnc, stegoKey, StegoObfuscatorForLicence.DefaultCoverLength);
 
                 // فك التشفير
-                var (num1, num2, dateOut) = ProtectionLicenceDepartment.MultiLayerEncryptor.DecryptTriple(extracted, pass1, pass2, pass3);
+                var (num1, num2, dateOut) = MultiLayerEncryptorForLicence.DecryptTriple(extracted, pass1, pass2, pass3);
 
                 txtNumber1NewOut.Text = num1;
                 txtNumber2NewOut.Text = num2;

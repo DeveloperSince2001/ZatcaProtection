@@ -7,9 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 
 using System.IO;
-using ProtectionKeyDepartment;
-using ProtectionLicenceDepartment;
-
 namespace ZatcaProtection
 {
    
@@ -65,17 +62,17 @@ namespace ZatcaProtection
               "}";
 
             // 1) التشفير ثلاثي (مع JSON)
-            string finalEncrypted = ProtectionKeyDepartment.MultiLayerEncryptor.EncryptTriple(number1, number2, jsonData, pass1, pass2, pass3);
+            string finalEncrypted = MultiLayerEncryptorForKey.EncryptTriple(number1, number2, jsonData, pass1, pass2, pass3);
 
             // 2) إخفاء
-            string stego = ProtectionKeyDepartment.StegoObfuscator.Hide(finalEncrypted, stegoKey, ProtectionKeyDepartment.StegoObfuscator.DefaultCoverLength);
+            string stego = StegoObfuscatorForKey.Hide(finalEncrypted, stegoKey, StegoObfuscatorForKey.DefaultCoverLength);
             Console.WriteLine("Stego Text Length = " + stego.Length);
 
             // 3) استخراج
-            string extracted = ProtectionKeyDepartment.StegoObfuscator.Extract(stego, stegoKey, ProtectionKeyDepartment.StegoObfuscator.DefaultCoverLength);
+            string extracted = StegoObfuscatorForKey.Extract(stego, stegoKey, StegoObfuscatorForKey.DefaultCoverLength);
 
             // 4) فك التشفير
-            var (rec1, rec2, recJson) = ProtectionKeyDepartment.MultiLayerEncryptor.DecryptTriple(extracted, pass1, pass2, pass3);
+            var (rec1, rec2, recJson) = MultiLayerEncryptorForKey.DecryptTriple(extracted, pass1, pass2, pass3);
 
             Console.WriteLine("Recovered Number1: " + rec1);
             Console.WriteLine("Recovered Number2: " + rec2);
@@ -97,19 +94,19 @@ namespace ZatcaProtection
             string stegoKey = "HideItLikeAPro1!As0101105976@as1^Programmer_Vb6-Android^.Net.";
 
             // 1) تشفير ثلاثي + التاريخ
-            string finalEncrypted = ProtectionLicenceDepartment.MultiLayerEncryptor.EncryptTriple(number1, number2, date, pass1, pass2, pass3);
+            string finalEncrypted = MultiLayerEncryptorForLicence.EncryptTriple(number1, number2, date, pass1, pass2, pass3);
 
             // 2) الإخفاء
-            string stego = ProtectionLicenceDepartment.StegoObfuscator.Hide(finalEncrypted, stegoKey, ProtectionLicenceDepartment.StegoObfuscator.DefaultCoverLength);
+            string stego = StegoObfuscatorForLicence.Hide(finalEncrypted, stegoKey, StegoObfuscatorForLicence.DefaultCoverLength);
             Console.WriteLine("Stego Text (length = " + stego.Length + "):");
             Console.WriteLine(stego);
 
             // ===== في وقت لاحق =====
             // 3) استخراج
-            string extractedEncrypted = ProtectionLicenceDepartment.StegoObfuscator.Extract(stego, stegoKey, ProtectionLicenceDepartment.StegoObfuscator.DefaultCoverLength);
+            string extractedEncrypted = StegoObfuscatorForLicence.Extract(stego, stegoKey, StegoObfuscatorForLicence.DefaultCoverLength);
 
             // 4) فك التشفير الثلاثي
-            var (n1, n2, d) = ProtectionLicenceDepartment.MultiLayerEncryptor.DecryptTriple(extractedEncrypted, pass1, pass2, pass3);
+            var (n1, n2, d) = MultiLayerEncryptorForLicence.DecryptTriple(extractedEncrypted, pass1, pass2, pass3);
 
             Console.WriteLine("\nRecovered Number1: " + n1);
             Console.WriteLine("Recovered Number2: " + n2);
